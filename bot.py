@@ -29,7 +29,7 @@ ID_CANAL_ADM = os.getenv("ID_CANAL_ADM")
 
 class AbsenceBot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix="!", intents=discord.Intents.default())
+        super().__init__(command_prefix="!>", intents=discord.Intents.default())
         
     async def setup_hook(self):
         # Garante que os botões funcionem mesmo se o bot cair e reiniciar
