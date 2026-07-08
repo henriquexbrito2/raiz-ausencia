@@ -1,2 +1,3 @@
-# raiz-ausencia
-🟦 O Bot de ausência do Problems Raiz
+# Problems Raiz - Ausência
+
+🟦 O Bot de ausência do Problems Raiz - EXCLUSIVO DA MODERAÇÃO! 
