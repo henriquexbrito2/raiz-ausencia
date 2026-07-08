@@ -104,7 +104,7 @@ class InitialView(discord.ui.View):
 # --- COMANDO PARA GERAR O PAINEL DE EMBED ---
 @bot.command()
 @commands.has_permissions(administrator=True)
-async def criar_painel(ctx):
+async def cpainel(ctx):
     embed = discord.Embed(
         title="Formulário de Ausência da Staff",
         description="Se você precisa se ausentar das suas funções, clique no botão abaixo para justificar.",
