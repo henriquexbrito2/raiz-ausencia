@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from threading import Thread
 
-# --- SISTEMA DE ENTRADA WEB PARA O RAILWAY MANTER O BOT VIVO ---
+# --- SISTEMA WEB PARA MANTER O BOT ATIVO NO RAILWAY ---
 app = Flask('')
 
 @app.route('/')
@@ -29,10 +29,11 @@ ID_CANAL_ADM = os.getenv("ID_CANAL_ADM")
 
 class AbsenceBot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix="!>", intents=discord.Intents.default())
+        # Utiliza todas as intents necessárias para gerenciamento de membros e mensagens
+        super().__init__(command_prefix="!", intents=discord.Intents.all())
         
     async def setup_hook(self):
-        # Garante que os botões funcionem mesmo se o bot cair e reiniciar
+        # Mantém o botão persistente ativo mesmo se o bot reiniciar
         self.add_view(InitialView())
 
 bot = AbsenceBot()
@@ -101,21 +102,36 @@ class InitialView(discord.ui.View):
     async def request_absence(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(AbsenceModal())
 
-# --- COMANDO PARA GERAR O PAINEL DE EMBED ---
-@bot.command()
-@commands.has_permissions(administrator=True)
-async def cpainel(ctx):
-    embed = discord.Embed(
+# --- FUNÇÃO AUXILIAR PARA GERAR O EMBED DO PAINEL ---
+def gerar_embed_painel():
+    return discord.Embed(
         title="Formulário de Ausência da Staff",
         description="Se você precisa se ausentar das suas funções, clique no botão abaixo para justificar.",
         color=discord.Color.blue()
     )
-    await ctx.send(embed=embed, view=InitialView())
+
+# --- COMANDO TRADICIONAL TEXTUAL (!criar_painel) ---
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def criar_painel(ctx):
+    await ctx.send(embed=gerar_embed_painel(), view=InitialView())
+
+# --- COMANDO DE BARRA SLASH (/criar_painel) ---
+@bot.tree.command(name="criar_painel", description="Envia o painel com o botão de formulário de ausência no canal.")
+@app_commands.checks.has_permissions(administrator=True)
+async def criar_painel_slash(interaction: discord.Interaction):
+    await interaction.response.send_message("Painel criado com sucesso!", ephemeral=True)
+    await interaction.channel.send(embed=gerar_embed_painel(), view=InitialView())
 
 @bot.event
 async def on_ready():
     print(f"Bot logado com sucesso como {bot.user}")
-    await bot.tree.sync()
+    try:
+        # Sincroniza os comandos Slash globalmente com o Discord
+        sincronizados = await bot.tree.sync()
+        print(f"Sincronizados {len(sincronizados)} comandos slash com sucesso.")
+    except Exception as e:
+        print(f"Erro ao sincronizar comandos slash: {e}")
 
 # Inicia a API web do Railway e executa o bot do Discord
 keep_alive()
